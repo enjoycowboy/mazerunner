@@ -4,8 +4,8 @@ Pgm de geração e resolução paralela de labirintos
 
 TODO:
 
-~> procedimento de geraçao do labirinto, sementes, aleatoriedade, import, algo do tipo;
-~> engine de orientaçao basica de cada thread (i.e como discernir parede de caminho, norte sul leste oeste etc)
+~> procedimento de geraçao do labirinto, sementes, aleatoriedade, import, algo do tipo;  
+~> engine de orientaçao basica de cada thread (i.e como discernir parede de caminho, norte sul leste oeste etc)  
 ~> geraçao de output de cada thread (uma imagem bmp?)
 
 # broad
@@ -15,9 +15,9 @@ TODO:
   leitura:
   
   sobre geração de labirintos:
-  http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
-  https://en.wikipedia.org/wiki/Maze_generation_algorithm
-  http://stackoverflow.com/questions/38502/whats-a-good-algorithm-to-generate-a-maze
-  http://rosettacode.org/wiki/Maze_generation
-  
+  http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap  
+  https://en.wikipedia.org/wiki/Maze_generation_algorithm  
+  http://stackoverflow.com/questions/38502/whats-a-good-algorithm-to-generate-a-maze  
+  http://rosettacode.org/wiki/Maze_generation  
+    
   http://www.openmp.org/wp-content/uploads/cspec20.pdf manuel do openmp
