@@ -2,6 +2,7 @@
 # Random Maze Generator using Depth-first Search
 # http://en.wikipedia.org/wiki/Maze_generation_algorithm
 
+import sys
 import random
 from PIL import Image
 imgx = 500; imgy = 500
@@ -49,3 +50,13 @@ for ky in range(imgy):
     for kx in range(imgx):
         pixels[kx, ky] = color[maze[ymax * ky / imgy][xmax * kx / imgx]]
 image.save("Maze_" + str(xmax) + "x" + str(ymax) + ".png", "PNG")
+file = open("maze_output.txt", "w");
+
+for jj in range(ymax):
+    for ii in range (xmax):
+        file.write(maze[jj][ii], end=' ')
+    file.write()
+
+file.close()
+
+print("ok!")
