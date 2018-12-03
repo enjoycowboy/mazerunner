@@ -53,10 +53,11 @@ image.save("Maze_" + str(xmax) + "x" + str(ymax) + ".png", "PNG")
 file = open("maze_output.txt", "w");
 
 for jj in range(ymax):
-    for ii in range (xmax):
-        file.write(maze[jj][ii], end=' ')
-    file.write()
-
+    for ii in range(xmax):
+        file.write(str(maze[jj][ii]))
+        ii +=1
+    jj+=1
+    file.write("\n")
 file.close()
 
 print("ok!")
