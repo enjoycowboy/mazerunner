@@ -50,31 +50,31 @@ def createmaze(size):
 
 def solvemaze(maze, size):
 	dx = [0,1,0,-1]; dy = [-1,0,1,0]
-	color = [(0,0,0),(255,0,0)]
+	color = [(0,0,0),(255,255,255),(255,0,255)]
 	cx =0 ; cy=0 #comecando em 0,0
 	stack = [(0,0,0)]
 	steps= [[]]
 	dirRange = range(4)
 	nlst=[]
 	while len(stack) > 0:
-		for i in dirRange: #olhando ao redor
-			look_x = cx+dx[i]; look_y = cy+dy[i]#testando se ta dentro do negocio
-			if look_x >=0 and look_x < size and look_y >= 0 and look_y<size:
-				if maze[look_y][look_x] == 1:#se for caminho, entra pra lista de rumos possivels
-					nlst.append(i)
-					
-		if len(nlst)>0: #se tiver mais um, testa o aleatorio
-			ir = nlst[random.randint(0,len(nlst)-1)]
-			cx += dx[ir]; cy += dy[ir];
-			stack.append((cx,cy,ir))
-			steps.append((cy,cx))
-			print("Currently at ("+str(cx)+"),("+str(cy)+")")
-			print("Looking at ("+str(look_x)+"),("+str(look_y)+")")
-		else: stack.pop()
+		
+		# espaco em branco  -> maze[x][y] = 1
+		# parede 			-> maze[x][y] = 0
+		# caminho andado    -> maze[x][y] = 7
+		# começa de algum canto.
+		# olhar nas quatro direcoes
+		# criar lista de caminhos possiveis
+			# se maze[x][y] == 0 nao appenda
+			# se maze[x][y] == 1 appenda na lista de proximo no possivel
+			# se tiver mais do que um nó na lista 
+				# analisa se tem algum marcado com 7
+				# se tiver vai pra outro canto
+				# se nao tiver, toma uma direcao aleatoria
+			#quando tiver um caminho possivel so, coloca na lista de passos (stack)
 
-		if look_x == size and look_y == size:
-			return steps
-			break
+
+
+		# evitar backtrack
 
 	for ky in range(size):
 	    for kx in range(size):
