@@ -12,7 +12,7 @@ def createmaze(size):
 	color=[(0,0,0), (255,255,255), (0,255,0)]
 	#primeira celula:
 	cx = 0; cy = 0
-	maze[0][0] = 1 #marca a primeira celula
+	maze[0][0] = 4 #marca a primeira celula
 	maze[size-1][size-1] = 2
 	stack = [(cx,cy,0)] #pos x, pos y, dir
 
@@ -97,7 +97,7 @@ def main():
 	print ("lets run!")
 	run = [[]]
 	steps = [[0 for x in range(size)] for y in range(size)]
-	color = [(0,0,0),(255,255,255),(0,0,255),(0,0,255)]
+	color = [(0,0,0),(255,255,255),(0,255,0),(0,0,255), (255,0,0)]
 	try:
 		run = createmaze(size)
 		
