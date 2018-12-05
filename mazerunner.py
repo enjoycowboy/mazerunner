@@ -87,6 +87,7 @@ def solvemaze(maze, size):
 					ctr = 0
 					for j in range(4): #profundidade
 						ex = next_x + dx[j]; ey= next_y + dy[j]
+						print("Looking at ("+str(ex)+","+str(ey)+")")
 						if ex >= 0 and ex < size and ey >= 0 and ey < size:
 							if maze[ey][ex] == 1: ctr+=1
 					if ctr == 1: valid_steps.append(i);
@@ -105,13 +106,11 @@ def solvemaze(maze, size):
 
 
 def main():
+	size = int(sys.argv[1])
 	print ("lets run!")
-	size = 1000
 	run = [[]]
 	steps = [[]]
-
 	color = [(0,0,0),(255,0,0)]
-		
 	try:
 		run = createmaze(size)
 		image = Image.open("Maze.png")
@@ -121,15 +120,12 @@ def main():
 		time.sleep(5)
 		steps = solvemaze(run,size)
 	except KeyboardInterrupt:
-		
-		
 		for ky in range(size):
 			for kx in range(size):
 				pixels[kx, ky] = color[steps[size * ky / size][size * kx / size]]
 	
 		image.save("Solution_" + str(size) + "x" + str(size) + ".png", "PNG")
 		exit(0)
-	
 
 if __name__ == '__main__':
 	main()
