@@ -9,11 +9,11 @@ def createmaze(size):
 	dx=[0,1,0,-1] #movimentacao no eixo x
 	# =[S,E,N,W]
 	dy=[-1,0,1,0] #movimentacao no eixo y
-	color=[(0,0,0), (255,255,255)]
+	color=[(0,0,0), (255,255,255), (0,255,0)]
 	#primeira celula:
 	cx = 0; cy = 0
-	maze[cy][cx] = 1 #marca a primeira celula
-	maze[size-1][size-1] = 1
+	maze[0][0] = 1 #marca a primeira celula
+	maze[size-1][size-1] = 2
 	stack = [(cx,cy,0)] #pos x, pos y, dir
 
 	while len(stack)>0:
@@ -64,41 +64,29 @@ def createmaze(size):
 	#quando tiver um caminho possivel so, coloca na lista de passos (stack(
 	#se for 0 nas quatro direcoes, quebra tudo e pula fora da func
 
+def solvemaze(maze, x, y):
 
+	if maze[x][y] == 2:
+		return True
 
+	elif maze[x][y] == 0:
+		return False
 
-def solvemaze(maze, size):
-	dx = [0,1,0,-1]; dy = [-1,0,1,0]
-	color = [(0,0,0),(255,255,255),(255,0,255)]
-	cx =0 ; cy=0 #comecando em 0,0
-	stack = [(0,0,0)]
-	steps= [[0 for x in range(size)] for y in range(size)]
-	dirRange = range(4)
-	valid_steps=[]
-	current_x = 0
-	current_y = 0
-	while len(stack) > 0:
-		(current_x, current_y,cd) = stack[-1]
-		for i in dirRange:
-			next_x = current_x + dx[i]; next_y = current_y + dy[i] 			# espaco em branco  -> maze[x][y] = 1
-			if next_x >= 0 and next_x < size and next_y >= 0 and next_y < size:
-				if maze[next_y][next_x] == 1:
-					ctr = 0
-					for j in range(4): #profundidade
-						ex = next_x + dx[j]; ey= next_y + dy[j]
-						print("Looking at ("+str(ex)+","+str(ey)+")")
-						if ex >= 0 and ex < size and ey >= 0 and ey < size:
-							if maze[ey][ex] == 1: ctr+=1
-					if ctr == 1: valid_steps.append(i);
+	elif maze[x][y] == 3:
+		return False
 
-		if len(valid_steps) > 0:
-			direction = valid_steps[random.randint(0, len(valid_steps)-1)]
-			current_x += dx[direction]; current_y += dy[direction]; maze[current_y][current_x] = 3
-			print("Walking to ("+str(cx)+","+str(cy)+")")
-			stack.append((current_y,current_x,direction))
-		else: stack.pop()
+	print 'visiting %d,%d' % (x, y)
 
-	return maze
+	maze[x][y] = 3
+   # explore neighbors clockwise starting by the one on the right
+
+	if ((x < len(maze)-1 and solvemaze(maze, x+1, y))
+		or (y > 0 and solvemaze(maze, x, y-1))
+		or (x > 0 and solvemaze(maze, x-1, y))
+		or (y < len(maze)-1 and solvemaze(maze, x, y+1))):
+		return True
+	return False
+
 
 #solution = list of steps taken
 #def metrics(solution):
@@ -108,22 +96,27 @@ def main():
 	size = int(sys.argv[1])
 	print ("lets run!")
 	run = [[]]
-	steps = [[]]
-	color = [(0,0,0),(255,0,0)]
+	steps = [[0 for x in range(size)] for y in range(size)]
+	color = [(0,0,0),(255,255,255),(0,0,255),(0,0,255)]
 	try:
 		run = createmaze(size)
-		image = Image.open("Maze.png")
-		pixels = image.load()
+		
+		'''
 		sys.stdout.flush()
 		print("maze created! running....")
 		time.sleep(5)
-		steps = solvemaze(run,size)
+		'''
+
+		steps = solvemaze(run,0,0)
+
+		image = Image.open("Maze.png")
+		pixels = image.load()
 	except KeyboardInterrupt:
 		exit(0)
 
 	for ky in range(size):
 			for kx in range(size):
-				pixels[kx, ky] = color[steps[size * ky / size][size * kx / size]]
+				pixels[kx, ky] = color[run[size * ky / size][size * kx / size]]
 	
 	image.save("Solution_" + str(size) + "x" + str(size) + ".png", "PNG")
 if __name__ == '__main__':
