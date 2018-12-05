@@ -12,7 +12,7 @@ def createmaze(size):
 	color=[(0,0,0), (255,255,255), (0,255,0)]
 	#primeira celula:
 	cx = 0; cy = 0
-	maze[0][0] = 4 #marca a primeira celula
+	maze[0][0] = 1 #marca a primeira celula
 	maze[size-1][size-1] = 2
 	stack = [(cx,cy,0)] #pos x, pos y, dir
 
@@ -65,7 +65,7 @@ def createmaze(size):
 	#se for 0 nas quatro direcoes, quebra tudo e pula fora da func
 
 def solvemaze(maze, x, y):
-
+	
 	if maze[x][y] == 2:
 		return True
 
