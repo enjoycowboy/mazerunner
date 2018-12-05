@@ -1,10 +1,13 @@
-import random, signal,sys, time
+import random, signal,sys, time, heapq
 from PIL import Image
 
-def createmaze(size):
+size = int(sys.argv[1])
+maze = [[0 for x in range (size)] for y in range(size)]
+
+
+def createmaze():
 	image = Image.new("RGB", (size,size))
 	pixels = image.load()
-	maze = [[0 for x in range (size)] for y in range(size)]
 	#direcoes de movimento
 	dx=[0,1,0,-1] #movimentacao no eixo x
 	# =[S,E,N,W]
@@ -48,78 +51,128 @@ def createmaze(size):
 	        pixels[kx, ky] = color[maze[size * ky / size][size * kx / size]]
 	image.save("Maze.png", "PNG")
 
-	return maze
 
-# parede 			-> maze[x][y] = 0
-# caminho andado    -> maze[x][y] = 7
-# comeca de algum canto.
-# olhar nas quatro direcoes
-# criar lista de caminhos possiveis
-	# se maze[x][y] == 0 nao appenda
-	# se maze[x][y] == 1 appenda na lista de proximo no possivel
-	# se tiver mais do que um no na lista 
-		# analisa se tem algum marcado com 7
-		# se tiver vai pra outro canto
-		# se nao tiver, toma uma direcao aleatoria
-	#quando tiver um caminho possivel so, coloca na lista de passos (stack(
-	#se for 0 nas quatro direcoes, quebra tudo e pula fora da func
+class Cell(object):
+	def __init__ (self,x,y,reachable):
+		self.reachable = reachable
+		self.x = x
+		self.y = y
+		self.g = 0
+		self.h = 0
+		self.f = 0
+		self.parent = None
+# G -> custo de ir da celula inicial a destino
+# H -> custo de ir a uma celula qualquer ao destino
+# F = G + H
 
-def solvemaze(maze, x, y):
+class Aestrela(object):
+	def __init__(self):
+		self.aberto = []
+		heapq.heapify(self.aberto)
+		self.fechado = set()
+		self.cells = []
+		self.grid_height = size
+		self.grid_width = size
 
-	if maze[x][y] == 2:
-		return True
+## buscar as celulas parede
 
-	elif maze[x][y] == 0:
-		return False
+def calculo_h (self,cell):
+	return 10 * abs(cell.x-self.end.x) + abs(cell.y - self.end.y)
 
-	elif maze[x][y] == 3:
-		return False
+def busca_celulas_adjacentes(self,x,y):
+	cells = []
 
-	print 'visiting %d,%d' % (x, y)
+	if cell.x < self.grid_width-1:
+		cells.append(self.get_cell(cell.x+1, cell.y))
+	if cell.y > 0:
+		cells.append(self.get_cell(cell.x, cell.y-1))
+	if cell.x > 0:
+		cells.append(self.get_cell(cell.x-1, cell.y))
+	if cell.y < self.grid_width-1:
+		cells.append(self.get_cell(cell.x, cell.y+1))
 
-	maze[x][y] = 3
-   # explore neighbors clockwise starting by the one on the right
+		return cells
 
-	if ((x < len(maze)-1 and solvemaze(maze, x+1, y))
-		or (y > 0 and solvemaze(maze, x, y-1))
-		or (x > 0 and solvemaze(maze, x-1, y))
-		or (y < len(maze)-1 and solvemaze(maze, x, y+1))):
-		return True
-	return False
+def path(self):
+	cell = self.end
+	while cell.parent is not self.start:
+		cell = cell.parent
+		maze[cell.y][cell.x]=3
+
+def get_cell(self,x,y):
+	 return self.cells[x * self.grid_height + y]
+
+def get_path(self):
+	cell = self.end
+	path = [(cell.x, cell.y)]
+	while cell.parent is not self.start:
+		cell = cell.parent
+		path.append((cell.x, cell.y))	
+		path.append((self.start.x, self.start.y))
+		path.reverse()
+	return path
+
+def atualiza_g_h(self, adjacente, cell):
+
+	adjacente.g = cell.g + 10
+	adjacente.h = self.calculo_h(adj)
+	adjacente.pai = cell
+	adjacente.f = adjacente.h + adjacente.g
+
+def paint():
+	image = Image.open("Maze.png") #manipula a imagem da solucao
+	pixels = image.load()
+	color = [(0,0,0),(255,255,255),(0,255,0),(0,0,255), (255,0,0)]#parede, caminho, inico, percorrido, fim
+	for ky in range(size):
+		for kx in range(size):
+			pixels[kx, ky] = color[run[size * ky / size][size * kx / size]]
+	image.save("Solution_" + str(size) + "x" + str(size) + ".png", "PNG")
 
 
-#solution = list of steps taken
-#def metrics(solution):
 
+def solvemaze(astar,start,end):
+
+#Coloca a celula inicial no heap:
+	heapq.heappush(astar.aberto, (start.f, start))
+	while len(aberto):
+		# pop
+		f, cell = heapq.heappop(aberto)
+		fechado.add(cell)
+		if cell is end:
+			path()
+			paint()
+			break
+		#captura adjacentes
+		adj_cells = busca_celulas_adjacentes(cell)
+		for adj_cell in adj_cells:
+			if adj_cell.reachable and adj_cell not in fechado: # se nao estiver nos fechados
+				if (adj_cell.f, adj_cell) in self.aberto: # confere se eh melhor do que antes
+					if adj_cell.g > cell.g+10:
+						atualiza_g_h(adj_cell, cell)
+					else:
+						atualiza_g_h(adj_cell, cell)
+						heapq.heappush(self.aberto,(adj_cell.f,adj_cell))
 
 def main():
-	sys.setrecursionlimit(100000)
-	size = int(sys.argv[1])
-	print ("lets run!")
-	run = [[]]
-	steps = [[0 for x in range(size)] for y in range(size)]
-	color = [(0,0,0),(255,255,255),(0,255,0),(0,0,255), (255,0,0)]
-	try:
-		run = createmaze(size)
-		
-		'''
-		sys.stdout.flush()
-		print("maze created! running....")
-		time.sleep(5)
-		'''
+	print("Lets RUN!")
+	createmaze()
 
-		steps = solvemaze(run,0,0)
+	astar = Aestrela()
 
-		image = Image.open("Maze.png")
-		pixels = image.load()
-	except KeyboardInterrupt:
-		exit(0)
+	start = (0,0)
+	end = (size-1,size-1)
 
-	for ky in range(size):
-			for kx in range(size):
-				pixels[kx, ky] = color[run[size * ky / size][size * kx / size]]
 	
-	image.save("Solution_" + str(size) + "x" + str(size) + ".png", "PNG")
+	walls = []
+	for xx in range(size):
+		for yy in range(size):
+			if maze[yy][xx] == 0:
+				reachable = False
+				walls.append((xx,yy))
+			else: reachable = True
+			astar.cells.append(Cell(x,y,reachable))
+	
+	solvemaze(astar,start,end)
+
 if __name__ == '__main__':
 	main()
-
