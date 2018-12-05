@@ -65,7 +65,7 @@ def createmaze(size):
 	#se for 0 nas quatro direcoes, quebra tudo e pula fora da func
 
 def solvemaze(maze, x, y):
-	
+
 	if maze[x][y] == 2:
 		return True
 
@@ -93,6 +93,7 @@ def solvemaze(maze, x, y):
 
 
 def main():
+	sys.setrecursionlimit(100000)
 	size = int(sys.argv[1])
 	print ("lets run!")
 	run = [[]]
