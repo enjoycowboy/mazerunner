@@ -112,7 +112,6 @@ def paint():
 
 
 
-
 def solvemaze(astar,start,end):
 
 #Coloca a celula inicial no heap:
@@ -121,21 +120,37 @@ def solvemaze(astar,start,end):
 
 	astar.aberto = [start]
 	
+	current_cell.x
+	current_cell.y
+
 	while len(astar.aberto):
 		current_cell = astar.aberto.pop(0)
 		
 		print("evaluating ("+str(current_cell.x)+","+str(current_cell.y)+")")
 		astar.fechado.add(current_cell)
-		if Cell is end:
+		if current_cell.x == size-1 and current_cell.y == size-1:
 			path(astar)
 			paint()
 			break
 		#captura adjacentes
-		
+		'''
 		adj_cells = [astar.cells[(current_cell.x+1)* size + current_cell.y],
 astar.cells[(current_cell.x)* size + current_cell.y - 1],
 astar.cells[(current_cell.x-1)* size + current_cell.y],
 astar.cells[current_cell.x * size + current_cell.y + 1]]
+'''		#fetcha os adjacentes
+		adj_cells = [astar.cells[int(current_cell.x+1)* size + current_cell.y],
+						astar.cells[(current_cell.x)* size + current_cell.y - 1],
+						astar.cells[(current_cell.x-1)* size + current_cell.y],
+						astar.cells[current_cell.x * size + current_cell.y + 1]]
+
+		for i in range(len(adj_cells)):
+			if adj_cells[i].x > size or adj_cells[i].x < 0 and adj_cells[i].y > size or adj_cells[i].y < 0:
+				del adj_cells[i]
+
+		print("Indexed Cells:\n")
+		for i in range(len(adj_cells)):
+			print("("+str(adj_cells[i].x)+","+str(adj_cells[i].y)+"), "+str(adj_cells[i].reachable))
 
 		
 		for adj_cell in adj_cells:
@@ -148,6 +163,9 @@ astar.cells[current_cell.x * size + current_cell.y + 1]]
 					print ("g = "+ str(current_cell.g)+", h ="+str(current_cell.h))
 				
 		astar.aberto.sort(reverse = False, key= int(current_cell.f))
+
+		for i in range(len(astar.aberto)):
+			print("("+str(astar.aberto.x)+","+str(astar.aberto.y)+")")
 
 def main():
 	print("Lets RUN!")
