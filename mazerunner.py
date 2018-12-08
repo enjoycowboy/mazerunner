@@ -65,7 +65,7 @@ class Cell(object):
 # H -> custo de ir a uma celula qualquer ao destino
 # F = G + H
 
-class Aestrela(object):
+class Aestrela(Cell):
 	def __init__(self):
 		self.aberto = []
 		heapq.heapify(self.aberto)
@@ -78,45 +78,26 @@ class Aestrela(object):
 
 def calculo_h (self,cell):
 	return 10 * abs(cell.x-self.end.x) + abs(cell.y - self.end.y)
-
-def busca_celulas_adjacentes(self,x,y):
-	cells = []
-
-	if cell.x < self.grid_width-1:
-		cells.append(self.get_cell(cell.x+1, cell.y))
-	if cell.y > 0:
-		cells.append(self.get_cell(cell.x, cell.y-1))
-	if cell.x > 0:
-		cells.append(self.get_cell(cell.x-1, cell.y))
-	if cell.y < self.grid_width-1:
-		cells.append(self.get_cell(cell.x, cell.y+1))
-
-		return cells
-
-def path(self):
-	cell = self.end
-	while cell.parent is not self.start:
-		cell = cell.parent
-		maze[cell.y][cell.x]=3
-
-def get_cell(self,x,y):
-	 return self.cells[x * self.grid_height + y]
-
-def get_path(self):
+def get_path(self, maze):
 	cell = self.end
 	path = [(cell.x, cell.y)]
 	while cell.parent is not self.start:
 		cell = cell.parent
-		path.append((cell.x, cell.y))	
+		path.append((cell.x, cell.y))
+		maze[cell.y][cell.x]=3
 		path.append((self.start.x, self.start.y))
 		path.reverse()
+
+	for x in range(len(path)):
+		path[x] 
+
 	return path
 
 def atualiza_g_h(self, adjacente, cell):
 
 	adjacente.g = cell.g + 10
-	adjacente.h = self.calculo_h(adj)
-	adjacente.pai = cell
+	adjacente.h = self.calculo_h(adjacente)
+	adjacente.parent = cell
 	adjacente.f = adjacente.h + adjacente.g
 
 def paint():
@@ -130,49 +111,75 @@ def paint():
 
 
 
+
+
 def solvemaze(astar,start,end):
 
 #Coloca a celula inicial no heap:
-	heapq.heappush(astar.aberto, (start.f, start))
-	while len(aberto):
-		# pop
-		f, cell = heapq.heappop(aberto)
-		fechado.add(cell)
-		if cell is end:
-			path()
+
+	current_cell = start
+
+	astar.aberto = [start]
+	
+	while len(astar.aberto):
+		current_cell = astar.aberto.pop(0)
+		
+		print("evaluating ("+str(current_cell.x)+","+str(current_cell.y)+")")
+		astar.fechado.add(current_cell)
+		if Cell is end:
+			path(astar)
 			paint()
 			break
 		#captura adjacentes
-		adj_cells = busca_celulas_adjacentes(cell)
+		
+		adj_cells = [astar.cells[(current_cell.x+1)* size + current_cell.y],
+astar.cells[(current_cell.x)* size + current_cell.y - 1],
+astar.cells[(current_cell.x-1)* size + current_cell.y],
+astar.cells[current_cell.x * size + current_cell.y + 1]]
+
+		
 		for adj_cell in adj_cells:
-			if adj_cell.reachable and adj_cell not in fechado: # se nao estiver nos fechados
-				if (adj_cell.f, adj_cell) in self.aberto: # confere se eh melhor do que antes
-					if adj_cell.g > cell.g+10:
-						atualiza_g_h(adj_cell, cell)
-					else:
-						atualiza_g_h(adj_cell, cell)
-						heapq.heappush(self.aberto,(adj_cell.f,adj_cell))
+
+			print("considering cell ("+str(adj_cell.x)+"),("+str(adj_cell.y)+")")
+
+			if adj_cell.reachable and adj_cell not in astar.fechado: # se nao estiver nos fechados
+				if (adj_cell.f, adj_cell) in astar.aberto: # confere se eh melhor do que antes
+					astar.atualiza_g_h(adj_cell, current_cell)
+					print ("g = "+ str(current_cell.g)+", h ="+str(current_cell.h))
+				
+		astar.aberto.sort(reverse = False, key= int(current_cell.f))
 
 def main():
 	print("Lets RUN!")
 	createmaze()
 
-	astar = Aestrela()
 
-	start = (0,0)
-	end = (size-1,size-1)
+	start = Cell(0,0,True) #comeca na celula 0,0
+	end = Cell(size-1,size-1, True)
 
 	
-	walls = []
+	cells = [start]
+	abertas = [start]
 	for xx in range(size):
 		for yy in range(size):
 			if maze[yy][xx] == 0:
 				reachable = False
-				walls.append((xx,yy))
+				
 			else: reachable = True
-			astar.cells.append(Cell(x,y,reachable))
+			cells.append(Cell(xx,yy,reachable)) #instancia a classe
+	labirinto = Aestrela()
+
+	labirinto.cells = cells
+	labirinto.aberto = abertas
+
+	cells[len(cells)-1] = end
+
+	for i in range(len(cells)):
+		print("("+str(cells[i].x)+","+str(cells[i].y)+"), "+str(cells[i].reachable))
+	solvemaze(labirinto,start,end)
 	
-	solvemaze(astar,start,end)
+	#todas as celulas que sao cell.reachable == true
+	# entram na lista de celulas abertas. self.aberto()
 
 if __name__ == '__main__':
 	main()
