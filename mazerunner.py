@@ -3,7 +3,8 @@ from PIL import Image
 
 size = int(sys.argv[1])
 maze = [[0 for x in range (size)] for y in range(size)]
-
+image = Image.new("RGB", (size,size))
+pixels = image.load()
 
 def createmaze():
 	image = Image.new("RGB", (size,size))
@@ -12,7 +13,7 @@ def createmaze():
 	dx=[0,1,0,-1] #movimentacao no eixo x
 	# =[S,E,N,W]
 	dy=[-1,0,1,0] #movimentacao no eixo y
-	color=[(0,0,0), (255,255,255), (0,255,0)]
+	color=[(0,0,0), (255,255,255), (0,255,0), (0,0,255)]
 	#primeira celula:
 	cx = 0; cy = 0
 	maze[0][0] = 1 #marca a primeira celula
@@ -42,7 +43,7 @@ def createmaze():
 		if len(nlst)>0:
 			ir = nlst[random.randint(0,len(nlst)-1)]
 			cx += dx[ir]; cy+=dy[ir]; maze[cy][cx]=1
-			#print("Walking to ("+str(cx)+","+str(cy)+")")
+			print("Walking to ("+str(cx)+","+str(cy)+")")
 			stack.append((cx,cy,ir))
 		else:stack.pop()
 
@@ -51,153 +52,135 @@ def createmaze():
 	        pixels[kx, ky] = color[maze[size * ky / size][size * kx / size]]
 	image.save("Maze.png", "PNG")
 
+class Node():
+    """A node class for A* Pathfinding"""
 
-class Cell(object):
-	def __init__ (self,x,y,reachable):
-		self.reachable = reachable
-		self.x = x
-		self.y = y
-		self.g = 0
-		self.h = 0
-		self.f = 0
-		self.parent = None
-# G -> custo de ir da celula inicial a destino
-# H -> custo de ir a uma celula qualquer ao destino
-# F = G + H
+    def __init__(self, parent=None, position=None):
+        self.parent = parent
+        self.position = position
 
-class Aestrela(Cell):
-	def __init__(self):
-		self.aberto = []
-		heapq.heapify(self.aberto)
-		self.fechado = set()
-		self.cells = []
-		self.grid_height = size
-		self.grid_width = size
+        self.g = 0
+        self.h = 0
+        self.f = 0
 
-## buscar as celulas parede
+    def __eq__(self, other):
+        return self.position == other.position
 
-def calculo_h (self,cell):
-	return 10 * abs(cell.x-self.end.x) + abs(cell.y - self.end.y)
-def get_path(self, maze):
-	cell = self.end
-	path = [(cell.x, cell.y)]
-	while cell.parent is not self.start:
-		cell = cell.parent
-		path.append((cell.x, cell.y))
-		maze[cell.y][cell.x]=3
-		path.append((self.start.x, self.start.y))
-		path.reverse()
 
-	for x in range(len(path)):
-		path[x] 
+def astar(maze, start, end):
+    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
-	return path
+    # Create start and end node
+    start_node = Node(None, start)
+    start_node.g = start_node.h = start_node.f = 0
+    end_node = Node(None, end)
+    end_node.g = end_node.h = end_node.f = 0
 
-def atualiza_g_h(self, adjacente, cell):
 
-	adjacente.g = cell.g + 10
-	adjacente.h = self.calculo_h(adjacente)
-	adjacente.parent = cell
-	adjacente.f = adjacente.h + adjacente.g
+    print ("start at "+str(start_node.position))
+    print ("end at "+str(end_node.position))
+    # Initialize both open and closed list
+    open_list = []
+    closed_list = []
 
-def paint():
-	image = Image.open("Maze.png") #manipula a imagem da solucao
-	pixels = image.load()
-	color = [(0,0,0),(255,255,255),(0,255,0),(0,0,255), (255,0,0)]#parede, caminho, inico, percorrido, fim
+    # Add the start node
+    open_list.append(start_node)
+
+    # Loop until you find the end
+    while len(open_list) > 0:
+
+        # Get the current node
+        current_node = open_list[0]
+        
+        current_index = 0
+        for index, item in enumerate(open_list):
+            if item.f < current_node.f:
+                current_node = item
+                current_index = index
+
+        # Pop current off open list, add to closed list
+        open_list.pop(current_index)
+        closed_list.append(current_node)
+
+        # Found the goal
+        if current_node == end_node:
+            path = []
+            current = current_node
+            
+            
+            while current is not None:
+                print ("entering node "+str(current.position)+";")
+                path.append(current.position)
+                maze[(current.position[0])][(current.position[1])] = 3
+                current = current.parent
+            	
+            return path[::-1] # Return reversed path
+
+
+        # Generate children
+        children = []
+        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+
+            # Get node position
+            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+
+            # Make sure within range
+            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
+                continue
+
+            # Make sure walkable terrain
+            if maze[node_position[0]][node_position[1]] == 0:
+                continue
+
+            # Create new node
+            new_node = Node(current_node, node_position)
+
+            # Append
+            children.append(new_node)
+
+        # Loop through children
+        for child in children:
+            # Child is on the closed list
+            for closed_child in closed_list:
+                if child == closed_child:
+                    continue
+            
+            print ("considering node "+str(child.position)+";")
+            # Create the f, g, and h values
+            child.g = current_node.g + 1
+            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
+            child.f = child.g + child.h
+
+            # Child is already in the open list
+            for open_node in open_list:
+                if child == open_node and child.g > open_node.g:
+                    continue
+
+            # Add the child to the open list
+            open_list.append(child)
+
+def paintsolution():
+	#direcoes de movimento
+	dx=[0,1,0,-1] #movimentacao no eixo x
+	# =[S,E,N,W]
+	dy=[-1,0,1,0] #movimentacao no eixo y
+	color=[(0,0,0), (255,255,255), (0,255,0), (0,0,255)]
 	for ky in range(size):
-		for kx in range(size):
-			pixels[kx, ky] = color[run[size * ky / size][size * kx / size]]
-	image.save("Solution_" + str(size) + "x" + str(size) + ".png", "PNG")
-
-
-
-
-def solvemaze(astar,start,end):
-
-#Coloca a celula inicial no heap:
-
-	current_cell = start
-
-	astar.aberto = [start]
-	
-	current_cell.x
-	current_cell.y
-
-	while len(astar.aberto):
-		current_cell = astar.aberto.pop(0)
-		
-		print("evaluating ("+str(current_cell.x)+","+str(current_cell.y)+")")
-		astar.fechado.add(current_cell)
-		if current_cell.x == size-1 and current_cell.y == size-1:
-			path(astar)
-			paint()
-			break
-		#captura adjacentes
-		'''
-		adj_cells = [astar.cells[(current_cell.x+1)* size + current_cell.y],
-astar.cells[(current_cell.x)* size + current_cell.y - 1],
-astar.cells[(current_cell.x-1)* size + current_cell.y],
-astar.cells[current_cell.x * size + current_cell.y + 1]]
-'''		#fetcha os adjacentes
-		adj_cells = [astar.cells[int(current_cell.x+1)* size + current_cell.y],
-						astar.cells[(current_cell.x)* size + current_cell.y - 1],
-						astar.cells[(current_cell.x-1)* size + current_cell.y],
-						astar.cells[current_cell.x * size + current_cell.y + 1]]
-
-		for i in range(len(adj_cells)):
-			if adj_cells[i].x > size or adj_cells[i].x < 0 and adj_cells[i].y > size or adj_cells[i].y < 0:
-				del adj_cells[i]
-
-		print("Indexed Cells:\n")
-		for i in range(len(adj_cells)):
-			print("("+str(adj_cells[i].x)+","+str(adj_cells[i].y)+"), "+str(adj_cells[i].reachable))
-
-		
-		for adj_cell in adj_cells:
-
-			print("considering cell ("+str(adj_cell.x)+"),("+str(adj_cell.y)+")")
-
-			if adj_cell.reachable and adj_cell not in astar.fechado: # se nao estiver nos fechados
-				if (adj_cell.f, adj_cell) in astar.aberto: # confere se eh melhor do que antes
-					astar.atualiza_g_h(adj_cell, current_cell)
-					print ("g = "+ str(current_cell.g)+", h ="+str(current_cell.h))
-				
-		astar.aberto.sort(reverse = False, key= int(current_cell.f))
-
-		for i in range(len(astar.aberto)):
-			print("("+str(astar.aberto.x)+","+str(astar.aberto.y)+")")
+	    for kx in range(size):
+	        pixels[kx, ky] = color[maze[size * ky / size][size * kx / size]]
+	image.save("Maze_solved.png", "PNG")
 
 def main():
 	print("Lets RUN!")
+	
 	createmaze()
-
-
-	start = Cell(0,0,True) #comeca na celula 0,0
-	end = Cell(size-1,size-1, True)
-
 	
-	cells = [start]
-	abertas = [start]
-	for xx in range(size):
-		for yy in range(size):
-			if maze[yy][xx] == 0:
-				reachable = False
-				
-			else: reachable = True
-			cells.append(Cell(xx,yy,reachable)) #instancia a classe
-	labirinto = Aestrela()
-
-	labirinto.cells = cells
-	labirinto.aberto = abertas
-
-	cells[len(cells)-1] = end
-
-	for i in range(len(cells)):
-		print("("+str(cells[i].x)+","+str(cells[i].y)+"), "+str(cells[i].reachable))
-	solvemaze(labirinto,start,end)
+	start = (0,0)
+	end = ((size-1),(size-1))
 	
-	#todas as celulas que sao cell.reachable == true
-	# entram na lista de celulas abertas. self.aberto()
+	path = astar(maze,start,end)
 
+	paintsolution()
+	
 if __name__ == '__main__':
 	main()
