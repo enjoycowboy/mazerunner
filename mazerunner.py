@@ -129,7 +129,7 @@ def astar(maze, start, end):
                 continue
 
             # Make sure walkable terrain
-            if maze[node_position[0]][node_position[1]] != 0:
+            if maze[node_position[0]][node_position[1]] == 0:
                 continue
 
             # Create new node
@@ -147,14 +147,14 @@ def astar(maze, start, end):
             
             print ("considering node "+str(child.position)+";")
             # Create the f, g, and h values
-            child.g = current_node.g + (current_node.position[0] - start_node.position[0]) + (current_node.position[1] - start_node.position[1])
-            child.h = ((end_node.position[0]-child.position[0]) +(end_node.position[1]-child.position[1])) 
+            child.g = current_node.g + 1
+            child.h = math.sqrt(((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2))
             child.f = child.g + child.h
 
             # Child is already in the open list
             for open_node in open_list:
                 if child == open_node and child.g > open_node.g:
-                    #child = open_list[random.randint(0,(len(open_list)-1))]
+                    child = open_list[random.randint(0,(len(open_list)-1))]
                     continue
 
 
