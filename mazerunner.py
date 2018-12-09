@@ -1,4 +1,4 @@
-import random, signal,sys, time, heapq
+import random,sys, time, math
 from PIL import Image
 
 size = int(sys.argv[1])
@@ -129,7 +129,7 @@ def astar(maze, start, end):
                 continue
 
             # Make sure walkable terrain
-            if maze[node_position[0]][node_position[1]] == 0:
+            if maze[node_position[0]][node_position[1]] != 0:
                 continue
 
             # Create new node
@@ -147,17 +147,21 @@ def astar(maze, start, end):
             
             print ("considering node "+str(child.position)+";")
             # Create the f, g, and h values
-            child.g = current_node.g + 1
-            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
+            child.g = current_node.g + (current_node.position[0] - start_node.position[0]) + (current_node.position[1] - start_node.position[1])
+            child.h = ((end_node.position[0]-child.position[0]) +(end_node.position[1]-child.position[1])) 
             child.f = child.g + child.h
 
             # Child is already in the open list
             for open_node in open_list:
                 if child == open_node and child.g > open_node.g:
+                    #child = open_list[random.randint(0,(len(open_list)-1))]
                     continue
+
+
 
             # Add the child to the open list
             open_list.append(child)
+            open_list.sort(reverse=False, key=lambda x: x.f)
 
 def paintsolution():
 	#direcoes de movimento
@@ -173,12 +177,30 @@ def paintsolution():
 def main():
 	print("Lets RUN!")
 	
+	timestart1 = time.clock()
+	
 	createmaze()
+
+	timend1 = time.clock()
+	spent1 = (timend1 - timestart1)
+
+	
 	
 	start = (0,0)
 	end = ((size-1),(size-1))
-	
+
+	timestart = time.clock()
+
 	path = astar(maze,start,end)
+
+	timend = time.clock()
+	spent = (timend - timestart)
+	print("\n")
+	print("\n")
+	print ("Time it took to generate a "+str(size)+"x"+str(size)+" maze: "+str(spent1)+"s \n")
+
+	print ("Time it took to generate a "+str(size)+"x"+str(size)+" maze: "+str(spent)+"s \n")
+	
 
 	paintsolution()
 	
