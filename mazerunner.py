@@ -154,14 +154,14 @@ def astar(maze, start, end):
             # Child is already in the open list
             for open_node in open_list:
                 if child == open_node and child.g > open_node.g:
-                    child = open_list[random.randint(0,(len(open_list)-1))]
+                    #child = open_list[random.randint(0,(len(open_list)-1))]
                     continue
 
 
 
             # Add the child to the open list
             open_list.append(child)
-            open_list.sort(reverse=False, key=lambda x: x.f)
+            open_list.sort(reverse=True, key=lambda x: x.f)
 
 def paintsolution():
 	#direcoes de movimento
@@ -199,7 +199,7 @@ def main():
 	print("\n")
 	print ("Time it took to generate a "+str(size)+"x"+str(size)+" maze: "+str(spent1)+"s \n")
 
-	print ("Time it took to generate a "+str(size)+"x"+str(size)+" maze: "+str(spent)+"s \n")
+	print ("Time it took to run a "+str(size)+"x"+str(size)+" maze: "+str(spent)+"s \n")
 	
 
 	paintsolution()
