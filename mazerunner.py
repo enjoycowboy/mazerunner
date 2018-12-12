@@ -4,6 +4,7 @@ from mpi4py import MPI
 
 zawarudo= MPI.COMM_WORLD
 myrank = zawarudo.Get_rank()
+commsz = zawarudo.Get_size()
 
 size = int(sys.argv[1])
 
@@ -168,8 +169,8 @@ def astar(maze, start, end):
 		for child in children:
 			print ("Process "+str(myrank)+" is considering node "+str(child.position)+";")
 			# Create the f, g, and h values
-			child.g = current_node.g + 1
-			child.h = math.sqrt(((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2))
+			child.g = current_node.g + myrank
+			child.h = math.sqrt(((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)) + myrank
 			child.f = child.g + child.h
 
 			# Child is already in the open list
@@ -183,11 +184,11 @@ def astar(maze, start, end):
 			# manda pra zero uma tupla (x, y, val)
 			# a zero mapeia a tupla pro maze           
 		if myrank is 0:
-			commsz = zawarudo.Get_size()
+			
 			for child in children:
 				maze[child.position[0]][child.position[1]] = 3 + random.randint(0, commsz)
 				open_list.append(child)
-			open_list.sort(reverse=True, key=lambda x: x.f)
+			open_list.sort(reverse=False, key=lambda x: x.f)
 		open_list = zawarudo.bcast(open_list, root = 0)
 
 		
@@ -219,9 +220,9 @@ def main():
 		spent1 = time.clock() - timestart1
 	else:
 		maze = None
-	time_start = [0 for i in range(zawarudo.Get_size())]
-	time_end = [0 for i in range(zawarudo.Get_size())]
-	delta = [0 for i in range(zawarudo.Get_size())]
+	time_start = [0 for i in range(commsz)]
+	time_end = [0 for i in range(commsz)]
+	delta = [0 for i in range(commsz)]
 
 
 	maze = zawarudo.bcast(maze, root = 0)
