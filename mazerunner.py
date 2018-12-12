@@ -59,6 +59,8 @@ def createmaze():
 	        pixels[kx, ky] = color[maze[size * ky / size][size * kx / size]]
 	image.save("Maze.png", "PNG")
 
+	return maze
+
 class Node():
     """A node class for A* Pathfinding"""
 
@@ -97,19 +99,16 @@ def astar(maze, start, end):
     while len(open_list) > 0:
 
         # Get the current node
-       
-        current_index = myrank
-
-
-        '''
+        current_node = open_list[0]
+        
+        current_index = 0
         for index, item in enumerate(open_list):
             if item.f < current_node.f:
                 current_node = item
                 current_index = index
-		'''
 
         # Pop current off open list, add to closed list
-        current_node = open_list.pop(current_index)
+        open_list.pop(current_index)
         closed_list.append(current_node)
 
         # Found the goal
@@ -121,28 +120,32 @@ def astar(maze, start, end):
             while current is not None:
                 print ("entering node "+str(current.position)+";")
                 path.append(current.position)
-                maze[(current.position[0])][(current.position[1])] = 3 + myrank
+                maze[(current.position[0])][(current.position[1])] = 3
                 current = current.parent
             	
             return path[::-1] # Return reversed path
 
-        # Generate children
-        
 
-       	children = []
-       	for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
-       	    # Get node position
-       	    node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
-       	    # Make sure within range
-       	    if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
-       	        continue
-       	    # Make sure walkable terrain
-       	    if maze[node_position[0]][node_position[1]] == 0:
-       	        continue
-       	    # Create new node
-       	    new_node = Node(current_node, node_position)
-       	    # Append
-       	    children.append(new_node)
+        # Generate children
+        children = []
+        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+
+            # Get node position
+            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+
+            # Make sure within range
+            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
+                continue
+
+            # Make sure walkable terrain
+            if maze[node_position[0]][node_position[1]] == 0:
+                continue
+
+            # Create new node
+            new_node = Node(current_node, node_position)
+
+            # Append
+            children.append(new_node)
 
         # Loop through children
         for child in children:
@@ -151,7 +154,7 @@ def astar(maze, start, end):
                 if child == closed_child:
                     continue
             
-            #print ("considering node "+str(child.position)+";")
+            print ("considering node "+str(child.position)+";")
             # Create the f, g, and h values
             child.g = current_node.g + 1
             child.h = math.sqrt(((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2))
@@ -163,16 +166,11 @@ def astar(maze, start, end):
                     #child = open_list[random.randint(0,(len(open_list)-1))]
                     continue
 
+
+
             # Add the child to the open list
             open_list.append(child)
-
-        if myrank == 0:
-        	open_list = zawarudo.gather(open_list, root =0)
-        	open_list.sort(reverse=True, key=lambda x: x.f)
-        else: open_list = None; assert open_list is None
-
-        open_list = zawarudo.scatter(open_list, root =0)
-        
+            open_list.sort(reverse=True, key=lambda x: x.f)
 
 def paintsolution():
 	#direcoes de movimento
@@ -201,15 +199,17 @@ def main():
 		maze = None
 	if myrank is 0:
 		timestart1 = time.clock()
-		createmaze()
+		maze = createmaze()
 		timend1 = time.clock()
 		creation_time = timend1 - timestart1
 
 	#scatter do labirinto original
 	start = (0,0)
 	end = ((size-1),(size-1))
-
-	maze = zawarudo.scatter(maze, root=0)
+	runstart = [0 for i in range(zawarudo.Get_size())]
+	runend = [0 for i in range(zawarudo.Get_size())]
+	totaltime = [0 for i in range(zawarudo.Get_size())]
+	maze = zawarudo.bcast(maze, root=0)
 
 	######################################
 	zawarudo.barrier()
