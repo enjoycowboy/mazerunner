@@ -148,17 +148,39 @@ def astar(maze, start, end):
 				children.append(new_node)
 			n_of_kids = len(children)
 
-		
+
 		if myrank is not 0:
 			children = None
 			n_of_kids = None
 
 		n_of_kids = zawarudo.bcast(n_of_kids, root =0)
+		children = zawarudo.bcast(children, root = 0)		
+		#pesquisa mais adiante
+		
+		for child in children:
+			grandkids = []
+			for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+		
+					# Get node position
+					node_position = (child.position[0] + new_position[0], child.position[1] + new_position[1])
+	
+					# Make sure within range
+					if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
+						continue
+	
+				# Make sure walkable terrain
+					if maze[node_position[0]][node_position[1]] == 0:
+						continue
+	
+				# Create new node
+					new_node = Node(current_node, node_position)
+	
+					# Append
+					grandkids.append(new_node)
+		
+		children = children + grandkids
 
-		if n_of_kids < zawarudo.Get_size():
-			child = zawarudo.bcast(children, root =0 )
-
-		children = zawarudo.bcast(children, root=0)
+		children = zawarudo.bcast(children, root =0)
 		#scatter nas crianca
 
 		#cada no so vai pra crianca q recebe
